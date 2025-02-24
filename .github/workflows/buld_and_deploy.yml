@@ -1,0 +1,36 @@
+on:
+  push:
+    branches:
+      - main
+name: Build and Deploy
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          target: wasm32-unknown-unknown
+      - uses: taiki-e/install-action@wasm-pack
+      - name: Annotate commit with clippy warnings
+        uses: giraffate/clippy-action@v1
+        with:
+          reporter: 'github-pr-review'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4.0.2
+        with:
+          node-version: '20.15.0'
+      - run: npm install
+      - run: npm test
+      - run: npm run build
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          clean: true
