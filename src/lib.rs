@@ -1,8 +1,8 @@
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-
-
+#[macro_use]
+mod browser;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
