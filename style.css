@@ -1,0 +1,41 @@
+/* header {
+    background-color: rgba(16, 16, 16, 0.3);
+} */
+
+.nav-bar {
+    /* Change the font family as desired */
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+
+    background-color: rgba(16, 16, 16, 0.3);
+    transition: background-color 0.3s ease;
+
+    padding: 0.5rem 0;
+}
+
+.nav-bar:hover {
+    background-color: rgba(16, 16, 16, 0.1);
+}
+
+.nav-bar a{
+    display: inline-block;
+    padding: 0.3rem 0rem;
+    color: inherit;
+    text-decoration: none; /* removes underline */
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.nav-bar:hover a {
+    opacity: 0.2;
+}
+
+.nav-bar a:hover {
+    opacity: 1;
+    /* color: #FFFFFF; change to your desired color on hover */
+}
+
+.nav-bar ul {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0 1rem;
+  }
