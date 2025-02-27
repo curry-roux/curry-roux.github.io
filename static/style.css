@@ -1,6 +1,7 @@
-/* header {
-    background-color: rgba(16, 16, 16, 0.3);
-} */
+/* TODO
+- 文字色で真っ黒色を使うな
+- フォント
+*/
 
 .nav-bar {
     /* Change the font family as desired */
@@ -38,4 +39,20 @@
     gap: 1rem;
     margin: 0;
     padding: 0 1rem;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    /* color: inherit; ensures the text color follows inherited styles */
+    width: auto;
+  }
+  
+  footer:hover {
+    opacity: 1;
   }
