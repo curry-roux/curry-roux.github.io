@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ルゥのホームページ</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" media="screen">
   </head>
   <body>
     <script src="index.js"></script>
     <header>
       <nav class="nav-bar">
         <ul>
-          <a href="index.html">TOP</a>
-          <a href="about.html">TEST</a>
-          <a href="contact.html">TEST2</a>
+          <a href="/" data-route>TOP</a>
+          <a href="/about" data-route>TEST</a>
+          <a href="/test" data-route>TEST2</a>
         </ul>
     </header>
     Hello World!
     <div> 
+      <!-- 背景 -->
       <canvas id="canvas" tabindex="0" width="600" height="600"></canvas>
+    </div>
+
+    <div class="test">
+      <p>テストページ</p>
     </div>
 
     <footer>

@@ -14,7 +14,14 @@ pub fn main_js() -> Result<(), JsValue> {
 
 
     // Your code goes here!
-    console::log_1(&JsValue::from_str("Hello world!"));
+    console::log_1(&JsValue::from_str("ほいお～！"));
+
+    Ok(())
+}
+
+#[wasm_bindgen]
+pub fn test1() -> Result<(), JsValue> {
+    log!("ほいほいお～！");
 
     Ok(())
 }
