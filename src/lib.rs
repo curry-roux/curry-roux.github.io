@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
-use web_sys::console;
+use web_sys::{console, CanvasRenderingContext2d};
+use wasm_bindgen::JsValue;
 
 #[macro_use]
 mod browser;
@@ -22,6 +23,23 @@ pub fn main_js() -> Result<(), JsValue> {
 #[wasm_bindgen]
 pub fn test1() -> Result<(), JsValue> {
     log!("ほいほいお～！");
+
+    browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+
+    let canvas = browser::canvas().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    let ctx = canvas
+        .get_context("2d")
+        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?
+        .ok_or_else(|| JsValue::from_str("Failed to get 2d context"))?;
+
+    // canvasの背景を黒に設定
+    let ctx_2d = ctx
+    .dyn_into::<web_sys::CanvasRenderingContext2d>()
+    .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    ctx_2d.set_fill_style(&JsValue::from_str("black"));
+    ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+
+
 
     Ok(())
 }
