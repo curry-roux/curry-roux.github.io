@@ -2,7 +2,7 @@
 use anyhow::{anyhow, Result};
 
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{Window, Document, HtmlCanvasElement};
+use web_sys::{Document, HtmlCanvasElement, HtmlElement, Window};
 
 macro_rules! log {
     ( $($t:tt)* ) => {
@@ -27,7 +27,7 @@ pub fn canvas() -> Result<HtmlCanvasElement>{
 }
 
 // もしかしてキャンバスのサイズを返した方がいいかも？
-pub fn set_canvas_fullscreen() -> Result<()> {
+pub fn set_canvas_fullscreen() -> Result<(u32, u32)> {
     let window = window()?;
     let width = window
         .inner_width()
@@ -40,9 +40,10 @@ pub fn set_canvas_fullscreen() -> Result<()> {
         .as_f64()
         .ok_or_else(|| anyhow!("window.inner_height() is not a f64"))?;
 
+    log!("width: {}, height: {}", width, height);
     let canvas = canvas()?;
     canvas.set_width(width as u32);
     canvas.set_height(height as u32);
 
-    Ok(())
+    Ok((width as u32, height as u32))
 }

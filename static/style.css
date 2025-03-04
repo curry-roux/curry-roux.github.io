@@ -65,5 +65,14 @@ footer:hover {
 /* canvas */
 #canvas {
     display: block; /* 余計な横スクロールを防ぐ */
-    margin: 0 auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/* テキスト選択で色が変わらないようにする */
+::selection {
+    /* background: transparent; */
+    color: inherit;
 }

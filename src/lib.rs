@@ -36,10 +36,21 @@ pub fn test1() -> Result<(), JsValue> {
     let ctx_2d = ctx
     .dyn_into::<web_sys::CanvasRenderingContext2d>()
     .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
-    ctx_2d.set_fill_style(&JsValue::from_str("black"));
+    ctx_2d.set_fill_style(&JsValue::from_str("rgba(0, 0, 0, 0.2)"));
     ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
 
+    // windows resize イベントを登録
+    let window = browser::window().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    let closure = Closure::<dyn FnMut()>::wrap(Box::new(move|| {
+        log!("Window resized!");
+        browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err))).unwrap();
+    }));
 
+    window
+        .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref())
+        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+
+    closure.forget();
 
     Ok(())
 }
