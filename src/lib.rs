@@ -4,6 +4,7 @@ use wasm_bindgen::JsValue;
 
 #[macro_use]
 mod browser;
+mod engine;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
@@ -51,6 +52,10 @@ pub fn test1() -> Result<(), JsValue> {
         .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
     closure.forget();
+
+    // debug
+    let renderer = engine::Renderer2d{context: ctx_2d};
+    //renderer.clear();
 
     Ok(())
 }
