@@ -5,6 +5,7 @@ use wasm_bindgen::JsValue;
 #[macro_use]
 mod browser;
 mod engine;
+mod boid;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
@@ -14,9 +15,7 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-
-    // Your code goes here!
-    console::log_1(&JsValue::from_str("ほいお～！"));
+    
 
     Ok(())
 }
@@ -33,14 +32,14 @@ pub fn test1() -> Result<(), JsValue> {
         .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?
         .ok_or_else(|| JsValue::from_str("Failed to get 2d context"))?;
 
-    // canvasの背景を黒に設定
+    // canvasの背景を黒に設定 後で消す
     let ctx_2d = ctx
     .dyn_into::<web_sys::CanvasRenderingContext2d>()
     .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
     ctx_2d.set_fill_style(&JsValue::from_str("rgba(0, 0, 0, 0.2)"));
     ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
 
-    // windows resize イベントを登録
+    // windows resizeイベントを登録
     let window = browser::window().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
     let closure = Closure::<dyn FnMut()>::wrap(Box::new(move|| {
         log!("Window resized!");
@@ -55,7 +54,7 @@ pub fn test1() -> Result<(), JsValue> {
 
     // debug
     let renderer = engine::Renderer2d{context: ctx_2d};
-    //renderer.clear();
+    renderer.clear();
 
     Ok(())
 }

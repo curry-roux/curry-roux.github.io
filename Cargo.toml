@@ -26,6 +26,8 @@ lto = true
 wasm-bindgen = "0.2.100"
 console_error_panic_hook = "0.1.7"
 anyhow = "1.0.96"
+async-trait = "0.1.52"
+wasm-bindgen-futures = "0.4.28"
 
 # `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
 # compared to the default allocator's ~10K. However, it is slower than the default
@@ -37,7 +39,7 @@ wee_alloc = { version = "0.4.2", optional = true }
 [dependencies.web-sys]
 version = "0.3.77"
 features = ["console", "Document", "Element", "HtmlElement", "Node", "Window", "HtmlCanvasElement",
-            "CanvasRenderingContext2d",]
+            "CanvasRenderingContext2d", "Performance"]
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
