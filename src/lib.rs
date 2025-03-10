@@ -15,8 +15,6 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-    
-
     Ok(())
 }
 
@@ -39,22 +37,24 @@ pub fn test1() -> Result<(), JsValue> {
     ctx_2d.set_fill_style(&JsValue::from_str("rgba(0, 0, 0, 0.2)"));
     ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
 
-    // windows resizeイベントを登録
-    let window = browser::window().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
-    let closure = Closure::<dyn FnMut()>::wrap(Box::new(move|| {
-        log!("Window resized!");
-        browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err))).unwrap();
-    }));
+    // // windows resizeイベントを登録
+    // let window = browser::window().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    // let closure = Closure::<dyn FnMut()>::wrap(Box::new(move|| {
+    //     log!("Window resized!");
+    //     browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err))).unwrap();
+    // }));
 
-    window
-        .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref())
-        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    // window
+    //     .add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref())
+    //     .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
-    closure.forget();
+    // closure.forget();
 
     // debug
     let renderer = engine::Renderer2d{context: ctx_2d};
     renderer.clear();
+    renderer.circle(100., 100., 100.);
+    renderer.triangle(200., 200., 800., 250., 500., 500.);
 
     Ok(())
 }
