@@ -72,6 +72,12 @@ where
 
 pub type LoopClosure = Closure<dyn FnMut(f64)>;
 
+pub fn request_animation_frame(callback: &LoopClosure) -> Result<i32>{
+    window()?
+        .request_animation_frame(callback.as_ref().unchecked_ref())
+        .map_err(|err| anyhow!("Failed to request animation frame {:#?}", err))
+}
+
 pub fn closure_once<F, A, R>(fn_once: F) -> Closure<F::FnMut>
 where
     F: 'static + WasmClosureFnOnce<A, R>,

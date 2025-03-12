@@ -5,8 +5,8 @@ use std::{
     cell::RefCell,
 };
 
-use wasm_bindgen::{JsValue};
-use web_sys::{CanvasRenderingContext2d, Window};
+use wasm_bindgen::{JsValue,};
+use web_sys::{CanvasRenderingContext2d,};
 
 use crate::browser::{self, LoopClosure};
 
@@ -58,8 +58,14 @@ impl GameLoop {
             //     }
             // }
 
-            //browser::request_animation_frame(f.borrow().as_ref().unwrap());
+            let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
         }));
+
+        browser::request_animation_frame(
+            g.borrow()
+                .as_ref()
+                .ok_or_else(|| anyhow!("Game Loop: Loop is None"))?,
+        )?;
 
         Ok(())
     }

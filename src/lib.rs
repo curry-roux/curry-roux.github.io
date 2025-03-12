@@ -51,10 +51,17 @@ pub fn test1() -> Result<(), JsValue> {
     // closure.forget();
 
     // debug
+    log!("デバッグ！");
     let renderer = engine::Renderer2d{context: ctx_2d};
     renderer.clear();
-    renderer.circle(100., 100., 100.);
-    renderer.triangle(200., 200., 800., 250., 500., 500.);
+
+    browser::spawn_local(async move{
+        let game = boid::Boid::new();
+
+        engine::GameLoop::start(game)
+            .await
+            .expect("Failed to start game");
+    });
 
     Ok(())
 }
