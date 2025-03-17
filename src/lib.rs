@@ -54,9 +54,14 @@ pub fn test1() -> Result<(), JsValue> {
     log!("デバッグ！");
     let renderer = engine::Renderer2d{context: ctx_2d};
     renderer.clear();
+    let width = canvas.width();
+    let height = canvas.height();
 
     browser::spawn_local(async move{
-        let game = boid::Boid::new();
+        let game = boid::Boid::new(
+            width,
+            height
+        );
 
         engine::GameLoop::start(game)
             .await

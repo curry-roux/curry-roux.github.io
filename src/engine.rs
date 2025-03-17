@@ -27,7 +27,11 @@ pub struct GameLoop {
 type SharedLoopClosure = Rc<RefCell<Option<LoopClosure>>>;
 impl GameLoop {
     pub async fn start(game: impl Game + 'static) -> Result<()> {
+        let width = browser::canvas()?.width();
+        let height = browser::canvas()?.height();
+
         let mut game = game.initialize().await?;
+        log!("テスト1です！");
         let mut game_loop = GameLoop {
             last_time: browser::now()?,
             accumulated_delta_time: 0.0,

@@ -10,17 +10,24 @@ use crate::engine::{
 
 // Config
 const BOID_SIZE: f64 = 15.0;
-const BOID_COUNT: usize = 5;
+const BOID_COUNT: usize = 200;
+
+const MAX_FORCE: f64 = 0.5;
+const MAX_SPEED: f64 = 2.0;
 
 // ボイドモデルシミュレータ
 pub struct Boid {
     agents: Vec<BoidAgent>,
+    width: u32,  // 画面の幅
+    height: u32, // 画面の高さ
 }
 
 impl Boid {
-    pub fn new() -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         Boid {
             agents: Vec::new(),
+            width: width,
+            height: height,
         }
     }
 }
@@ -88,14 +95,28 @@ impl Game for Boid {
 
         Ok(Box::new(Boid {
             agents: agents,
+            width: self.width,
+            height: self.height,
         }))
     }
 
     fn update(&mut self) {
+        // 分離
+        self.separate();
+        // 整列
+        self.alignment();
+        // 結合
+        self.cohesion();
         for agent in &mut self.agents {
             // 速度を更新
             agent.velocity.x += agent.acceleration.x;
             agent.velocity.y += agent.acceleration.y;
+            let speed = (agent.velocity.x.powi(2) + agent.velocity.y.powi(2)).sqrt();
+            if speed > MAX_SPEED {
+                let factor = MAX_SPEED / speed;
+                agent.velocity.x *= factor;
+                agent.velocity.y *= factor;
+            }
 
             // 位置を更新
             agent.position.x += agent.velocity.x;
@@ -104,6 +125,28 @@ impl Game for Boid {
             // 加速度をリセット
             agent.acceleration.x = 0.0;
             agent.acceleration.y = 0.0;
+
+            // // 画面端で跳ね返る
+            // if agent.position.x < 0.0 || agent.position.x > self.width as f64 {
+            //     agent.velocity.x *= -1.0;
+            // }
+            // if agent.position.y < 0.0 || agent.position.y > self.height as f64 {
+            //     agent.velocity.y *= -1.0;
+            // }
+
+            // 画面端でループ
+            if agent.position.x < 0.0 {
+                agent.position.x = self.width as f64;
+            }
+            if agent.position.x > self.width as f64 {
+                agent.position.x = 0.0;
+            }
+            if agent.position.y < 0.0 {
+                agent.position.y = self.height as f64;
+            }
+            if agent.position.y > self.height as f64 {
+                agent.position.y = 0.0;
+            }
         }
         log!("Boid update");
     }
@@ -115,5 +158,102 @@ impl Game for Boid {
             renderer.triangle(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y);
         }
         log!("Boid draw");
+    }
+}
+
+impl Boid {
+    fn separate(&mut self) {
+        let separate_force: f64 = 3.0;
+        let separate_distance: f64 = 50.0;
+        for i in 0..self.agents.len() {
+            let mut count = 0;
+            let mut separate = Point{x: 0.0, y: 0.0};
+            for j in 0..self.agents.len() {
+                if i==j{
+                    continue;
+                }
+                let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
+                if distance < separate_distance.powi(2){
+                    separate.x += self.agents[i].position.x - self.agents[j].position.x;
+                    separate.y += self.agents[i].position.y - self.agents[j].position.y;
+                    count += 1;
+                }
+            }
+            if count > 0 {
+                separate.x /= count as f64;
+                separate.y /= count as f64;
+                let length = (separate.x.powi(2) + separate.y.powi(2)).sqrt();
+                separate.x /= length;
+                separate.y /= length;
+                separate.x *= separate_force;
+                separate.y *= separate_force;
+            }
+            self.agents[i].acceleration.x += separate.x;
+            self.agents[i].acceleration.y += separate.y;
+        }
+    }
+
+    fn alignment(&mut self) {
+        let alignment_force: f64 = 1.0;
+        let alignment_distance: f64 = 50.0;
+        for i in 0..self.agents.len() {
+            let mut count = 0;
+            let mut alignment = Point{x: 0.0, y: 0.0};
+            for j in 0..self.agents.len() {
+                if i==j{
+                    continue;
+                }
+                let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
+                if distance < alignment_distance.powi(2){
+                    alignment.x += self.agents[j].velocity.x;
+                    alignment.y += self.agents[j].velocity.y;
+                    count += 1;
+                }
+            }
+            if count > 0 {
+                alignment.x /= count as f64;
+                alignment.y /= count as f64;
+                let length = (alignment.x.powi(2) + alignment.y.powi(2)).sqrt();
+                alignment.x /= length;
+                alignment.y /= length;
+                alignment.x *= alignment_force;
+                alignment.y *= alignment_force;
+            }
+            self.agents[i].acceleration.x += alignment.x;
+            self.agents[i].acceleration.y += alignment.y;
+        }
+    }
+
+    fn cohesion(&mut self) {
+        let cohesion_force: f64 = 1.0;
+        let cohesion_distance: f64 = 50.0;
+        for i in 0..self.agents.len() {
+            let mut count = 0;
+            let mut cohesion = Point{x: 0.0, y: 0.0};
+            for j in 0..self.agents.len() {
+                if i==j{
+                    continue;
+                }
+                let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
+                if distance < cohesion_distance.powi(2){
+                    cohesion.x += self.agents[j].position.x;
+                    cohesion.y += self.agents[j].position.y;
+                    count += 1;
+                }
+            }
+            if count > 0 {
+                cohesion.x /= count as f64;
+                cohesion.y /= count as f64;
+                cohesion.x -= self.agents[i].position.x;
+                cohesion.y -= self.agents[i].position.y;
+                let length = (cohesion.x.powi(2) + cohesion.y.powi(2)).sqrt();
+                cohesion.x /= length;
+                cohesion.y /= length;
+                cohesion.x *= cohesion_force;
+                cohesion.y *= cohesion_force;
+            }
+            self.agents[i].acceleration.x += cohesion.x;
+            self.agents[i].acceleration.y += cohesion.y;
+        }
     }
 }
