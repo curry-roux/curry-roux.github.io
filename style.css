@@ -3,6 +3,7 @@
 - フォント
 */
 
+/* 以下最上部のナビバー */
 .nav-bar {
     /* Change the font family as desired */
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
@@ -41,6 +42,8 @@
     padding: 0 1rem;
 }
 
+
+/* 以下最下部のフッター部分 */
 footer {
     position: fixed;
     bottom: 0;
@@ -51,8 +54,25 @@ footer {
     text-align: center;
     /* color: inherit; ensures the text color follows inherited styles */
     width: auto;
-  }
-  
-  footer:hover {
+}
+
+footer:hover {
     opacity: 1;
-  }
+}
+
+/* 以下メインコンテンツ */
+
+/* canvas */
+#canvas {
+    display: block; /* 余計な横スクロールを防ぐ */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -2;
+}
+
+/* テキスト選択で色が変わらないようにする */
+::selection {
+    /* background: transparent; */
+    color: inherit;
+}
