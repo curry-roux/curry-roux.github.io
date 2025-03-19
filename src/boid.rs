@@ -1,4 +1,6 @@
 // ボイドモデルシミュレーター
+// メモ
+// 距離行列持って、差分計算とか頑張るともっと高速化できるかも
 use anyhow::{anyhow, Result};
 use std::{f64::consts::PI};
 use rand::Rng;
@@ -10,9 +12,9 @@ use crate::engine::{
 
 // Config
 const BOID_SIZE: f64 = 15.0;
-const BOID_COUNT: usize = 200;
+const BOID_COUNT: usize = 30;
 
-const MAX_FORCE: f64 = 0.5;
+const MAX_FORCE: f64 = 0.3;
 const MAX_SPEED: f64 = 2.0;
 
 // ボイドモデルシミュレータ
@@ -78,8 +80,10 @@ impl Game for Boid {
         for i in 0..BOID_COUNT{
             let agent = BoidAgent {
                 position: Point {
-                    x: rng.gen_range(0.0..800.0),
-                    y: rng.gen_range(0.0..600.0),
+                    // x: rng.gen_range(0.0..800.0),
+                    // y: rng.gen_range(0.0..600.0),
+                    x: rng.gen_range(0.0..self.width as f64),
+                    y: rng.gen_range(0.0..self.height as f64),
                 },
                 velocity: Point {
                     x: rng.gen_range(-1.0..1.0),
@@ -113,9 +117,11 @@ impl Game for Boid {
             agent.velocity.y += agent.acceleration.y;
             let speed = (agent.velocity.x.powi(2) + agent.velocity.y.powi(2)).sqrt();
             if speed > MAX_SPEED {
-                let factor = MAX_SPEED / speed;
-                agent.velocity.x *= factor;
-                agent.velocity.y *= factor;
+                // let factor = MAX_SPEED / speed;
+                // agent.velocity.x *= factor;
+                // agent.velocity.y *= factor;
+                agent.velocity.x = agent.velocity.x / speed * MAX_SPEED;
+                agent.velocity.y = agent.velocity.y / speed * MAX_SPEED;
             }
 
             // 位置を更新
@@ -163,8 +169,8 @@ impl Game for Boid {
 
 impl Boid {
     fn separate(&mut self) {
-        let separate_force: f64 = 3.0;
-        let separate_distance: f64 = 50.0;
+        let separate_force: f64 = 3.5;
+        let separate_distance: f64 = 25.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
             let mut separate = Point{x: 0.0, y: 0.0};
@@ -173,7 +179,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance < separate_distance.powi(2){
+                if distance > 0. && distance < separate_distance.powi(2){
                     separate.x += self.agents[i].position.x - self.agents[j].position.x;
                     separate.y += self.agents[i].position.y - self.agents[j].position.y;
                     count += 1;
@@ -194,7 +200,7 @@ impl Boid {
     }
 
     fn alignment(&mut self) {
-        let alignment_force: f64 = 1.0;
+        let alignment_force: f64 = 1.5;
         let alignment_distance: f64 = 50.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
@@ -204,7 +210,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance < alignment_distance.powi(2){
+                if distance > 1.0 && distance < alignment_distance.powi(2){
                     alignment.x += self.agents[j].velocity.x;
                     alignment.y += self.agents[j].velocity.y;
                     count += 1;
@@ -225,7 +231,7 @@ impl Boid {
     }
 
     fn cohesion(&mut self) {
-        let cohesion_force: f64 = 1.0;
+        let cohesion_force: f64 = 1.5;
         let cohesion_distance: f64 = 50.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
@@ -235,7 +241,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance < cohesion_distance.powi(2){
+                if distance > 0.5 && distance < cohesion_distance.powi(2){
                     cohesion.x += self.agents[j].position.x;
                     cohesion.y += self.agents[j].position.y;
                     count += 1;
@@ -243,12 +249,12 @@ impl Boid {
             }
             if count > 0 {
                 cohesion.x /= count as f64;
-                cohesion.y /= count as f64;
+                cohesion.y /= count as f64; // cohesionの平均
                 cohesion.x -= self.agents[i].position.x;
-                cohesion.y -= self.agents[i].position.y;
+                cohesion.y -= self.agents[i].position.y; // agentからみたcohesionのベクトル
                 let length = (cohesion.x.powi(2) + cohesion.y.powi(2)).sqrt();
                 cohesion.x /= length;
-                cohesion.y /= length;
+                cohesion.y /= length; // cohesionの単位ベクトル
                 cohesion.x *= cohesion_force;
                 cohesion.y *= cohesion_force;
             }
