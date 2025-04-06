@@ -17,9 +17,8 @@ function render(path) {
     console.log(path);
     // wasmの関数を呼び出す
     import("../pkg/index.js").then(module => {
-        // if (path === "/") module.test();
-        // if (path === "/about") module.test();
-        module.test1();
+        if (path === "/") module.test1();
+        if (path === "/about") module.test2();
     }).catch(console.error);
 }
 

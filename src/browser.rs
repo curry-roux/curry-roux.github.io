@@ -1,12 +1,20 @@
 // ブラウザとやり取りするためのコード
 use anyhow::{anyhow, Result};
-use std::{future::Future};
+use std::{
+    future::Future,
+    cell::RefCell,
+    collections::HashMap,
+    rc::Rc,
+};
 
 use wasm_bindgen::{
     prelude::{Closure, JsCast, JsValue,},
     closure::{WasmClosure,WasmClosureFnOnce,},
 };
-use web_sys::{CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window};
+use web_sys::{
+    CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window, Event,
+    HtmlInputElement, Node, Element,
+};
 
 macro_rules! log {
     ( $($t:tt)* ) => {

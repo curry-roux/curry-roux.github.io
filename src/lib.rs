@@ -32,8 +32,8 @@ pub fn test1() -> Result<(), JsValue> {
 
     // canvasの背景を黒に設定 後で消す
     let ctx_2d = ctx
-    .dyn_into::<web_sys::CanvasRenderingContext2d>()
-    .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+        .dyn_into::<web_sys::CanvasRenderingContext2d>()
+        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
     ctx_2d.set_fill_style(&JsValue::from_str("rgba(0, 0, 0, 0.2)"));
     ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
 

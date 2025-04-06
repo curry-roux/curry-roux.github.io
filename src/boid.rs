@@ -10,18 +10,12 @@ use crate::engine::{
     Game, Renderer2d, Point,
 };
 
-// Config
-const BOID_SIZE: f64 = 15.0;
-const BOID_COUNT: usize = 30;
-
-const MAX_FORCE: f64 = 0.3;
-const MAX_SPEED: f64 = 2.0;
-
 // ボイドモデルシミュレータ
 pub struct Boid {
     agents: Vec<BoidAgent>,
     width: u32,  // 画面の幅
     height: u32, // 画面の高さ
+    parameters: BoidParameters,
 }
 
 impl Boid {
@@ -30,15 +24,48 @@ impl Boid {
             agents: Vec::new(),
             width: width,
             height: height,
+            parameters: BoidParameters::default(),
         }
     }
 }
 
+// コンフィグ
+#[derive(Debug, Clone)]
+pub struct BoidParameters {
+    pub boid_size: f64,
+    pub boid_count: usize,
+    pub max_force: f64,
+    pub max_speed: f64,
+    pub separate_force: f64,
+    pub separate_distance: f64,
+    pub alignment_force: f64,
+    pub alignment_distance: f64,
+    pub cohesion_force: f64,
+    pub cohesion_distance: f64,
+}
+
+impl Default for BoidParameters {
+    fn default() -> Self {
+        BoidParameters {
+            boid_size: 15.0,
+            boid_count: 10,
+            max_force: 0.3,
+            max_speed: 2.0,
+            separate_force: 3.5,
+            separate_distance: 25.0,
+            alignment_force: 1.5,
+            alignment_distance: 50.0,
+            cohesion_force: 1.5,
+            cohesion_distance: 50.0,
+        }
+    }
+}
 
 struct BoidAgent {
     position: Point,
     velocity: Point,
     acceleration: Point,
+    size: f64,
 }
 
 impl BoidAgent {
@@ -52,16 +79,16 @@ impl BoidAgent {
 
         let sendo = 0.6; // 三角形の尖り具合
 
-        let front_x = self.position.x + BOID_SIZE*angle.cos();
-        let front_y = self.position.y + BOID_SIZE*angle.sin();
+        let front_x = self.position.x + self.size*angle.cos();
+        let front_y = self.position.y + self.size*angle.sin();
 
         let left_angle = angle + (2.0*PI / 3.0);
-        let left_x = self.position.x + (BOID_SIZE*sendo) * left_angle.cos();
-        let left_y = self.position.y + (BOID_SIZE*sendo) * left_angle.sin();
+        let left_x = self.position.x + (self.size*sendo) * left_angle.cos();
+        let left_y = self.position.y + (self.size*sendo) * left_angle.sin();
 
         let right_angle = angle - (2.0*PI / 3.0);
-        let right_x = self.position.x + (BOID_SIZE*sendo) * right_angle.cos();
-        let right_y = self.position.y + (BOID_SIZE*sendo) * right_angle.sin();
+        let right_x = self.position.x + (self.size*sendo) * right_angle.cos();
+        let right_y = self.position.y + (self.size*sendo) * right_angle.sin();
 
         [
             Point{x: front_x, y: front_y},
@@ -77,11 +104,9 @@ impl Game for Boid {
         log!("Boid initialize");
         let mut agents: Vec<BoidAgent> = vec![];
         let mut rng = rand::thread_rng();
-        for i in 0..BOID_COUNT{
+        for _ in 0..self.parameters.boid_count {
             let agent = BoidAgent {
                 position: Point {
-                    // x: rng.gen_range(0.0..800.0),
-                    // y: rng.gen_range(0.0..600.0),
                     x: rng.gen_range(0.0..self.width as f64),
                     y: rng.gen_range(0.0..self.height as f64),
                 },
@@ -93,6 +118,7 @@ impl Game for Boid {
                     x: 0.0,
                     y: 0.0,
                 },
+                size: self.parameters.boid_size,
             };
             agents.push(agent);
         }
@@ -101,6 +127,7 @@ impl Game for Boid {
             agents: agents,
             width: self.width,
             height: self.height,
+            parameters: BoidParameters::default(),
         }))
     }
 
@@ -116,12 +143,9 @@ impl Game for Boid {
             agent.velocity.x += agent.acceleration.x;
             agent.velocity.y += agent.acceleration.y;
             let speed = (agent.velocity.x.powi(2) + agent.velocity.y.powi(2)).sqrt();
-            if speed > MAX_SPEED {
-                // let factor = MAX_SPEED / speed;
-                // agent.velocity.x *= factor;
-                // agent.velocity.y *= factor;
-                agent.velocity.x = agent.velocity.x / speed * MAX_SPEED;
-                agent.velocity.y = agent.velocity.y / speed * MAX_SPEED;
+            if speed > self.parameters.max_speed {
+                agent.velocity.x = agent.velocity.x / speed * self.parameters.max_speed;
+                agent.velocity.y = agent.velocity.y / speed * self.parameters.max_speed;
             }
 
             // 位置を更新
@@ -154,7 +178,7 @@ impl Game for Boid {
                 agent.position.y = 0.0;
             }
         }
-        log!("Boid update");
+        //log!("Boid update");
     }
 
     fn draw(&self, renderer: &Renderer2d) {
@@ -163,14 +187,12 @@ impl Game for Boid {
             let triangle = agent.triangle();
             renderer.triangle(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y);
         }
-        log!("Boid draw");
+        //log!("Boid draw");
     }
 }
 
 impl Boid {
     fn separate(&mut self) {
-        let separate_force: f64 = 3.5;
-        let separate_distance: f64 = 25.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
             let mut separate = Point{x: 0.0, y: 0.0};
@@ -179,7 +201,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance > 0. && distance < separate_distance.powi(2){
+                if distance > 0. && distance < self.parameters.separate_distance.powi(2){
                     separate.x += self.agents[i].position.x - self.agents[j].position.x;
                     separate.y += self.agents[i].position.y - self.agents[j].position.y;
                     count += 1;
@@ -191,8 +213,8 @@ impl Boid {
                 let length = (separate.x.powi(2) + separate.y.powi(2)).sqrt();
                 separate.x /= length;
                 separate.y /= length;
-                separate.x *= separate_force;
-                separate.y *= separate_force;
+                separate.x *= self.parameters.separate_force;
+                separate.y *= self.parameters.separate_force;
             }
             self.agents[i].acceleration.x += separate.x;
             self.agents[i].acceleration.y += separate.y;
@@ -200,8 +222,6 @@ impl Boid {
     }
 
     fn alignment(&mut self) {
-        let alignment_force: f64 = 1.5;
-        let alignment_distance: f64 = 50.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
             let mut alignment = Point{x: 0.0, y: 0.0};
@@ -210,7 +230,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance > 1.0 && distance < alignment_distance.powi(2){
+                if distance > 1.0 && distance < self.parameters.alignment_distance.powi(2){
                     alignment.x += self.agents[j].velocity.x;
                     alignment.y += self.agents[j].velocity.y;
                     count += 1;
@@ -222,8 +242,8 @@ impl Boid {
                 let length = (alignment.x.powi(2) + alignment.y.powi(2)).sqrt();
                 alignment.x /= length;
                 alignment.y /= length;
-                alignment.x *= alignment_force;
-                alignment.y *= alignment_force;
+                alignment.x *= self.parameters.alignment_force;
+                alignment.y *= self.parameters.alignment_force;
             }
             self.agents[i].acceleration.x += alignment.x;
             self.agents[i].acceleration.y += alignment.y;
@@ -231,8 +251,6 @@ impl Boid {
     }
 
     fn cohesion(&mut self) {
-        let cohesion_force: f64 = 1.5;
-        let cohesion_distance: f64 = 50.0;
         for i in 0..self.agents.len() {
             let mut count = 0;
             let mut cohesion = Point{x: 0.0, y: 0.0};
@@ -241,7 +259,7 @@ impl Boid {
                     continue;
                 }
                 let distance = (self.agents[i].position.x - self.agents[j].position.x).powi(2) + (self.agents[i].position.y - self.agents[j].position.y).powi(2);
-                if distance > 0.5 && distance < cohesion_distance.powi(2){
+                if distance > 0.5 && distance < self.parameters.cohesion_distance.powi(2){
                     cohesion.x += self.agents[j].position.x;
                     cohesion.y += self.agents[j].position.y;
                     count += 1;
@@ -255,8 +273,8 @@ impl Boid {
                 let length = (cohesion.x.powi(2) + cohesion.y.powi(2)).sqrt();
                 cohesion.x /= length;
                 cohesion.y /= length; // cohesionの単位ベクトル
-                cohesion.x *= cohesion_force;
-                cohesion.y *= cohesion_force;
+                cohesion.x *= self.parameters.cohesion_force;
+                cohesion.y *= self.parameters.cohesion_force;
             }
             self.agents[i].acceleration.x += cohesion.x;
             self.agents[i].acceleration.y += cohesion.y;

@@ -3,6 +3,13 @@
 - フォント
 */
 
+/* テキスト選択で色が変わらないようにする */
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10 and IE 11 */
+    user-select: none;         /* 標準構文 */
+}
+
 /* 以下最上部のナビバー */
 .nav-bar {
     /* Change the font family as desired */
@@ -42,6 +49,33 @@
     padding: 0 1rem;
 }
 
+.hamburger-menu {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: inherit;
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
+}
+
+.parameter-panel {
+    display: none;
+    position: absolute;
+    top: 3rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* When panel is open */
+.parameter-panel.open {
+    display: block;
+}
+
 
 /* 以下最下部のフッター部分 */
 footer {
@@ -69,10 +103,4 @@ footer:hover {
     top: 0;
     left: 0;
     z-index: -2;
-}
-
-/* テキスト選択で色が変わらないようにする */
-::selection {
-    /* background: transparent; */
-    color: inherit;
 }

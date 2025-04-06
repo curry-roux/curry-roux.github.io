@@ -61,7 +61,6 @@ impl GameLoop {
             //         draw_frame_rate(&renderer, frame_time);
             //     }
             // }
-
             let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
         }));
 
