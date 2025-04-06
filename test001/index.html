@@ -7,30 +7,29 @@
     <link rel="stylesheet" href="style.css" media="screen">
   </head>
   <body>
-    <script src="index.js"></script>
+    <script>
+    import init, { test2  } from "./_pkg/sample_rust";
+    await init();
+    const p = new Plasma(WIDTH, HEIGHT);
+    p.update(time);
+    
+    </script>
     <header>
       <nav class="nav-bar">
         <ul>
           <a href="/" data-route>TOP</a>
-          <a href="/about" data-route>TEST</a>
-          <!-- <a href="/test" data-route>TEST2</a> -->
-          <a href="/test001">TEST001</a>
         </ul>
-        <!-- <button id="hamburger-menu" class="hamburger-menu">☰</button> -->
       </nav>
     </header>
 
-    <!-- <div id="parameter-panel" class="parameter-panel">
-      <p>Boidパラメータ</p>
-    </div> -->
-
     <div> 
+      <!-- 背景 -->
       <canvas id="canvas" tabindex="0" width="50" height="50"></canvas>
     </div>
 
-    <!-- <div class="test">
+    <div class="test">
       <p>テストページ</p>
-    </div> -->
+    </div>
 
     <footer>
       <p>© 2025 ルゥ(Roux) </p>
