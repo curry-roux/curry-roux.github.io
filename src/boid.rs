@@ -1,6 +1,4 @@
 // ボイドモデルシミュレーター
-// メモ
-// 距離行列持って、差分計算とか頑張るともっと高速化できるかも
 use anyhow::{anyhow, Result};
 use std::{f64::consts::PI};
 use rand::Rng;
@@ -20,11 +18,21 @@ pub struct Boid {
 
 impl Boid {
     pub fn new(width: u32, height: u32) -> Self {
+        let mut rng = rand::thread_rng();
+        let parameter = BoidParameters {
+            alignment_distance: rng.gen_range(10.0..100.0),
+            cohesion_distance: rng.gen_range(10.0..100.0),
+            separate_distance: rng.gen_range(10.0..100.0),
+            alignment_force : rng.gen_range(0.05..0.7),
+            cohesion_force : rng.gen_range(0.05..0.7),
+            separate_force: rng.gen_range(0.05..0.7),
+            ..BoidParameters::default()
+        };
         Boid {
             agents: Vec::new(),
             width: width,
             height: height,
-            parameters: BoidParameters::default(),
+            parameters: parameter,
         }
     }
 }
@@ -34,7 +42,6 @@ impl Boid {
 pub struct BoidParameters {
     pub boid_size: f64,
     pub boid_count: usize,
-    pub max_force: f64,
     pub max_speed: f64,
     pub separate_force: f64,
     pub separate_distance: f64,
@@ -48,14 +55,13 @@ impl Default for BoidParameters {
     fn default() -> Self {
         BoidParameters {
             boid_size: 15.0,
-            boid_count: 10,
-            max_force: 0.3,
-            max_speed: 2.0,
-            separate_force: 3.5,
+            boid_count: 100,
+            max_speed: 3.0,
+            separate_force: 0.35,
             separate_distance: 25.0,
-            alignment_force: 1.5,
+            alignment_force: 0.15,
             alignment_distance: 50.0,
-            cohesion_force: 1.5,
+            cohesion_force: 0.15,
             cohesion_distance: 50.0,
         }
     }
@@ -127,7 +133,7 @@ impl Game for Boid {
             agents: agents,
             width: self.width,
             height: self.height,
-            parameters: BoidParameters::default(),
+            parameters: self.parameters.clone(),
         }))
     }
 
