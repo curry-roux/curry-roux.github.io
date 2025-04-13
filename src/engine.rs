@@ -1,8 +1,8 @@
 // エンジン、シミュアプリは全部engineから必要なものを呼び出す
-use anyhow::{anyhow, Result};
+use wasm_bindgen::prelude::*;
+use anyhow::{anyhow, Ok, Result};
 use std::{
-    rc::Rc,
-    cell::RefCell,
+    cell::{Cell, RefCell}, rc::Rc
 };
 
 use wasm_bindgen::{JsValue,};
@@ -24,14 +24,14 @@ pub struct GameLoop {
     accumulated_delta_time: f32,
 }
 
-type SharedLoopClosure = Rc<RefCell<Option<LoopClosure>>>;
+pub type SharedLoopClosure = Rc<RefCell<Option<LoopClosure>>>;
 impl GameLoop {
-    pub async fn start(game: impl Game + 'static) -> Result<()> {
+    pub async fn start(game: impl Game + 'static) -> Result<()>{
         let width = browser::canvas()?.width();
         let height = browser::canvas()?.height();
 
         let mut game = game.initialize().await?;
-        log!("テスト1です！");
+
         let mut game_loop = GameLoop {
             last_time: browser::now()?,
             accumulated_delta_time: 0.0,
@@ -48,7 +48,7 @@ impl GameLoop {
 
             let frame_time = perf - game_loop.last_time;
             game_loop.accumulated_delta_time += frame_time as f32;
-            //game_loop.accumulated_delta += (perf - game_loop.last_frame) as f32;
+
             while game_loop.accumulated_delta_time >= FRAME_SIZE{
                 game.update();
                 game_loop.accumulated_delta_time -= FRAME_SIZE;
@@ -61,7 +61,14 @@ impl GameLoop {
             //         draw_frame_rate(&renderer, frame_time);
             //     }
             // }
-            let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
+            
+            // let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
+
+            if f.borrow().is_some() {
+                let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap()).unwrap();
+            } else {
+                log!("Game Loop: Loop is None");
+            }
         }));
 
         browser::request_animation_frame(

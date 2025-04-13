@@ -49,7 +49,7 @@ pub fn canvas() -> Result<HtmlCanvasElement>{
         .map_err(|element| anyhow!("Error converting {:#?} to HtmlCanvasElement", element))
 }
 
-// もしかしてキャンバスのサイズを返した方がいいかも？
+// キャンバスサイズ関連
 pub fn set_canvas_fullscreen() -> Result<(u32, u32)> {
     let window = window()?;
     let width = window
@@ -69,6 +69,23 @@ pub fn set_canvas_fullscreen() -> Result<(u32, u32)> {
     canvas.set_height(height as u32);
 
     Ok((width as u32, height as u32))
+}
+
+pub fn set_canvas_left_top(width: u32, height: u32) -> Result<(u32, u32)> {
+    // ブラウザの左側、正方形にcanvasを配置する
+    let window = window()?;
+    let canvas = canvas()?;
+    canvas.set_width(width);
+    canvas.set_height(height);
+    let html_canvas = canvas
+        .dyn_into::<HtmlElement>()
+        .map_err(|err: HtmlCanvasElement| anyhow!("Failed to convert canvas to HtmlElement: {:#?}", err))?;
+
+    let style = html_canvas.style();
+    let _ = style.set_property("position", "static");
+    let _ = style.set_property("margin-top", "24px");
+
+    Ok((width, height))
 }
 
 pub fn spawn_local<F>(future: F)

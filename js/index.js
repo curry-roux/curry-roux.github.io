@@ -18,7 +18,7 @@ function render(path) {
     // wasmの関数を呼び出す
     import("../pkg/index.js").then(module => {
         if (path === "/") module.test1();
-        if (path === "/about") module.test2();
+        if (path === "/about") module.stop_game();
     }).catch(console.error);
 }
 

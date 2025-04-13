@@ -6,6 +6,7 @@ use wasm_bindgen::JsValue;
 mod browser;
 mod engine;
 mod boid;
+mod analog_clock;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
@@ -22,7 +23,8 @@ pub fn main_js() -> Result<(), JsValue> {
 pub fn test1() -> Result<(), JsValue> {
     log!("ほいほいお～！");
 
-    browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    // browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    browser::set_canvas_left_top(600, 600).map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
     let canvas = browser::canvas().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
     let ctx = canvas
@@ -63,10 +65,31 @@ pub fn test1() -> Result<(), JsValue> {
             height
         );
 
-        engine::GameLoop::start(game)
+        let game_loop = engine::GameLoop::start(game)
             .await
             .expect("Failed to start game");
     });
 
     Ok(())
 }
+
+
+// fn main() -> eframe::Result<()> {
+//     // ウィンドウの設定
+//     let options = eframe::NativeOptions {
+//         viewport: egui::viewport::ViewportBuilder::default()
+//             .with_inner_size([400.0, 300.0]),
+//         ..Default::default()
+//     };
+    
+//     // アプリケーションの実行
+//     eframe::run_native(
+//         "My egui App",
+//         options,
+//         Box::new(|cc| {
+//             // 日本語フォントの設定
+//             //setup_custom_fonts(&cc.egui_ctx);
+//             Ok(Box::new(egui_test::MyApp::default()))
+//         }),
+//     )
+// }
