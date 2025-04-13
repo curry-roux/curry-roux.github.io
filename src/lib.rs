@@ -60,10 +60,11 @@ pub fn test1() -> Result<(), JsValue> {
     let height = canvas.height();
 
     browser::spawn_local(async move{
-        let game = boid::Boid::new(
-            width,
-            height
-        );
+        // let game = boid::Boid::new(
+        //     width,
+        //     height
+        // );
+        let game = analog_clock::AnalogClock::new(width, height);
 
         let game_loop = engine::GameLoop::start(game)
             .await

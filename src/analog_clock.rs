@@ -1,6 +1,6 @@
 // アナログ時計
 use anyhow::{anyhow, Result};
-use wasm_bindgen::JsValue;
+use async_trait::async_trait;
 use web_sys::js_sys;
 
 use crate::engine::{
@@ -8,32 +8,69 @@ use crate::engine::{
 };
 
 pub struct AnalogClock {
+    width: u32,  // 画面の幅
+    height: u32, // 画面の高さ
     pub hour: f32,
     pub minute: f32,
     pub second: f32,
 }
 
 impl AnalogClock {
-    pub fn new() -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         Self {
+            width: width,
+            height: height,
             hour: 0.0,
             minute: 0.0,
             second: 0.0,
         }
     }
+}
 
-    pub fn update(&mut self) {
+#[async_trait(?Send)]
+impl Game for AnalogClock {
+    async fn initialize(&self) -> Result<Box<dyn Game>> {
+        Ok(Box::new(AnalogClock::new(self.width, self.height)))
+    }
+
+    fn update(&mut self) {
         let now = js_sys::Date::new_0();
-        self.hour = now.get_hours() as f32 + now.get_minutes() as f32 / 60.0;
-        self.minute = now.get_minutes() as f32 + now.get_seconds() as f32 / 60.0;
         self.second = now.get_seconds() as f32;
+        self.minute = now.get_minutes() as f32 + self.second / 60.0;
+        self.hour = now.get_hours() as f32 + self.minute / 60.0;
     }
 
     fn draw(&self, renderer: &Renderer2d) {
         renderer.clear();
-        renderer.draw_circle(Point::new(0.0, 0.0), 100.0, "white", 1.0);
-        renderer.draw_line(Point::new(0.0, 0.0), Point::new(50.0 * self.hour.cos(), 50.0 * self.hour.sin()), "red", 2.0);
-        renderer.draw_line(Point::new(0.0, 0.0), Point::new(70.0 * self.minute.cos(), 70.0 * self.minute.sin()), "green", 2.0);
-        renderer.draw_line(Point::new(0.0, 0.0), Point::new(90.0 * self.second.cos(), 90.0 * self.second.sin()), "blue", 2.0);
+        let center = Point::new_fron_uint(self.width / 2, self.height / 2);
+        let radius = (self.width.min(self.height) / 2 - 20 ) as f64;
+
+        // Draw clock face
+        renderer.circle(center, radius, "white");
+
+        // Draw hour hand
+        let hour_angle = (self.hour / 12.0) * std::f32::consts::PI * 2.0;
+        let hour_hand_length = radius * 0.5;
+        // let hour_hand_end = center + Point::new(hour_hand_length * hour_angle.cos() as f64, hour_hand_length * hour_angle.sin() as f64);
+        let hour_hand_end_x = hour_hand_length * hour_angle.cos() as f64;
+        let hour_hand_end_y = hour_hand_length * hour_angle.sin() as f64;
+        let hour_hand_end = Point::new(center.x + hour_hand_end_x, center.y + hour_hand_end_y);
+        renderer.line(center, hour_hand_end, 6.0, "white");
+
+        // Draw minute hand
+        let minute_angle = (self.minute / 60.0) * std::f32::consts::PI * 2.0;
+        let minute_hand_length = radius * 0.7;
+        let minute_hand_end_x = minute_hand_length * minute_angle.cos() as f64;
+        let minute_hand_end_y = minute_hand_length * minute_angle.sin() as f64;
+        let minute_hand_end = Point::new(center.x + minute_hand_end_x, center.y + minute_hand_end_y);
+        renderer.line(center, minute_hand_end, 4.0, "white");
+
+        // Draw second hand
+        let second_angle = (self.second / 60.0) * std::f32::consts::PI * 2.0;
+        let second_hand_length = radius * 0.9;
+        let second_hand_end_x = second_hand_length * second_angle.cos() as f64;
+        let second_hand_end_y = second_hand_length * second_angle.sin() as f64;
+        let second_hand_end = Point::new(center.x + second_hand_end_x, center.y + second_hand_end_y);
+        renderer.line(center, second_hand_end, 2.0, "red");
     }
 }

@@ -88,6 +88,16 @@ pub struct Point {
     pub y: f64,
 }
 
+impl Point {
+    pub fn new(x: f64, y: f64) -> Self {
+        Self {x, y}
+    }
+
+    pub fn new_fron_uint(x: u32, y: u32) -> Self {
+        Self {x: x as f64, y: y as f64}
+    }
+}
+
 // 2D描画用のレンダラー
 pub struct Renderer2d{
     pub context: CanvasRenderingContext2d,
@@ -99,13 +109,25 @@ impl Renderer2d {
     }
 
     // 以下2Dプリミティブの描画関数
-    pub fn circle(&self, x: f64, y: f64, radius: f64) {
+    pub fn circle(&self, center: Point, radius: f64, color: &str) {
+        let color_str = get_color(color);
         self.context.begin_path();
-        self.context.arc(x, y, radius, 0.0, std::f64::consts::PI * 2.0).unwrap();
+        self.context.arc(center.x, center.y, radius, 0.0, std::f64::consts::PI * 2.0).unwrap();
         // 中を塗りつぶす
-        self.context.set_fill_style(&JsValue::from_str("rgba(255, 0, 0, 0.9)"));
+        self.context.set_fill_style(&JsValue::from_str(color_str.as_str()));
         self.context.fill();
         self.context.stroke();
+    }
+
+    pub fn line(&self, start: Point, end: Point, size: f64, color: &str) {
+        let color_str = get_color(color);
+        self.context.begin_path();
+        self.context.move_to(start.x, start.y);
+        self.context.line_to(end.x, end.y);
+        self.context.set_stroke_style(&JsValue::from_str(color_str.as_str()));
+        self.context.set_line_width(size);
+        self.context.stroke();
+        self.context.close_path();
     }
 
     pub fn triangle(&self, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) {
@@ -125,4 +147,13 @@ impl Renderer2d {
         // point struct作ったのでそれに従いましょう！！！
     }
 
+}
+
+fn get_color(color: &str) -> String {
+    match color {
+        "red" => "rgba(255, 0, 0, 0.9)".to_string(),
+        "green" => "rgba(0, 255, 0, 0.9)".to_string(),
+        "blue" => "rgba(0, 0, 255, 0.9)".to_string(),
+        _ => "rgba(10, 10, 10, 0.9)".to_string(), // default to black
+    }
 }
