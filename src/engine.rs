@@ -2,13 +2,22 @@
 use wasm_bindgen::prelude::*;
 use anyhow::{anyhow, Ok, Result};
 use std::{
-    cell::{Cell, RefCell}, rc::Rc
+    cell::{RefCell}, rc::Rc,
+    sync::atomic::{AtomicBool, Ordering},
 };
 
 use wasm_bindgen::{JsValue,};
 use web_sys::{CanvasRenderingContext2d,};
 
 use crate::browser::{self, LoopClosure};
+
+// グローバルな停止フラグ
+static LOOP_RUNNING: AtomicBool = AtomicBool::new(true);
+
+#[wasm_bindgen]
+pub fn stop_loop() {
+    LOOP_RUNNING.store(false, Ordering::Relaxed);
+}
 
 // ゲーム（あるいはシミュレーター）
 #[async_trait::async_trait(?Send)]
@@ -27,8 +36,7 @@ pub struct GameLoop {
 pub type SharedLoopClosure = Rc<RefCell<Option<LoopClosure>>>;
 impl GameLoop {
     pub async fn start(game: impl Game + 'static) -> Result<()>{
-        let width = browser::canvas()?.width();
-        let height = browser::canvas()?.height();
+        LOOP_RUNNING.store(true, Ordering::Relaxed);
 
         let mut game = game.initialize().await?;
 
@@ -44,6 +52,11 @@ impl GameLoop {
         let f: SharedLoopClosure = Rc::new(RefCell::new(None));
         let g = f.clone();
         *g.borrow_mut() = Some(browser::create_ref_closure(move |perf:f64|{
+            if !LOOP_RUNNING.load(Ordering::Relaxed) {
+                log!("Game Loop: Stopped");
+                renderer.clear();
+                return;
+            }
             //process_input(&mut keystate, &mut keyevent_receiver);
 
             let frame_time = perf - game_loop.last_time;
@@ -116,7 +129,8 @@ impl Renderer2d {
         // 中を塗りつぶす
         self.context.set_fill_style(&JsValue::from_str(color_str.as_str()));
         self.context.fill();
-        self.context.stroke();
+        // self.context.stroke(); 淵の線が描画される
+        self.context.close_path();
     }
 
     pub fn line(&self, start: Point, end: Point, size: f64, color: &str) {
@@ -140,11 +154,6 @@ impl Renderer2d {
         self.context.set_fill_style(&JsValue::from_str("rgba(0, 255, 0, 0.9)"));
         self.context.fill();
         self.context.stroke();
-    }
-
-    // 以下便利2D描画関数
-    pub fn direction_triangle(&self, start_x: f64, start_y: f64) {
-        // point struct作ったのでそれに従いましょう！！！
     }
 
 }

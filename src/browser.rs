@@ -2,18 +2,14 @@
 use anyhow::{anyhow, Result};
 use std::{
     future::Future,
-    cell::RefCell,
-    collections::HashMap,
-    rc::Rc,
 };
 
 use wasm_bindgen::{
-    prelude::{Closure, JsCast, JsValue,},
+    prelude::{Closure, JsCast},
     closure::{WasmClosure,WasmClosureFnOnce,},
 };
 use web_sys::{
-    CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window, Event,
-    HtmlInputElement, Node, Element,
+    CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window,
 };
 
 macro_rules! log {
@@ -73,7 +69,6 @@ pub fn set_canvas_fullscreen() -> Result<(u32, u32)> {
 
 pub fn set_canvas_left_top(width: u32, height: u32) -> Result<(u32, u32)> {
     // ブラウザの左側、正方形にcanvasを配置する
-    let window = window()?;
     let canvas = canvas()?;
     canvas.set_width(width);
     canvas.set_height(height);

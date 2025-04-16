@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-use web_sys::{console, CanvasRenderingContext2d};
+//use web_sys::{console, CanvasRenderingContext2d, HtmlCanvasElement};
 use wasm_bindgen::JsValue;
 
 #[macro_use]
@@ -23,7 +23,7 @@ pub fn main_js() -> Result<(), JsValue> {
 pub fn test1() -> Result<(), JsValue> {
     log!("ほいほいお～！");
 
-    // browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    //browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
     browser::set_canvas_left_top(600, 600).map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
     let canvas = browser::canvas().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
@@ -60,10 +60,7 @@ pub fn test1() -> Result<(), JsValue> {
     let height = canvas.height();
 
     browser::spawn_local(async move{
-        // let game = boid::Boid::new(
-        //     width,
-        //     height
-        // );
+        // let game = boid::Boid::new(width, height);
         let game = analog_clock::AnalogClock::new(width, height);
 
         let game_loop = engine::GameLoop::start(game)
@@ -74,6 +71,12 @@ pub fn test1() -> Result<(), JsValue> {
     Ok(())
 }
 
+
+#[wasm_bindgen]
+pub fn test2() -> Result<(), JsValue> {
+    log!("test2 called!");
+    Ok(())
+}
 
 // fn main() -> eframe::Result<()> {
 //     // ウィンドウの設定
