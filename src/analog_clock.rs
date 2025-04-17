@@ -43,11 +43,6 @@ impl Game for AnalogClock {
         self.hour = now.get_hours() as f32 + self.minute / 60.0;
 
         // log!("Hour: {}, Minute: {}, Second: {}", self.hour, self.minute, self.second);
-        
-        // // デバッグのために時間を固定する
-        // self.second = 0.0;
-        // self.minute = 10.0; // [0.0, 60.0)
-        // self.hour = 10.0; // [0.0, 12.0]
     }
 
     fn draw(&self, renderer: &Renderer2d) {
@@ -61,7 +56,6 @@ impl Game for AnalogClock {
         // Draw hour hand
         let hour_angle = (self.hour / 12.0) * PI * 2.0 - PI / 2.0;
         let hour_hand_length = radius * 0.5;
-        // let hour_hand_end = center + Point::new(hour_hand_length * hour_angle.cos() as f64, hour_hand_length * hour_angle.sin() as f64);
         let hour_hand_end_x = hour_hand_length * hour_angle.cos() as f64;
         let hour_hand_end_y = hour_hand_length * hour_angle.sin() as f64;
         let hour_hand_end = Point::new(center.x + hour_hand_end_x, center.y + hour_hand_end_y);
@@ -83,6 +77,6 @@ impl Game for AnalogClock {
         let second_hand_end = Point::new(center.x + second_hand_end_x, center.y + second_hand_end_y);
         renderer.line(center, second_hand_end, 2.0, "red");
 
-        log!("hour_angle: {}, minute_angle: {}, second_angle: {}", hour_angle, minute_angle, second_angle);
+        // todo 文字盤の数字を描画する
     }
 }

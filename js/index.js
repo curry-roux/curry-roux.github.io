@@ -17,11 +17,7 @@ function render(path) {
     // wasmの関数を呼び出す
     import("../pkg/index.js").then(module => {
         if (path === "/") module.test1();
-        if (path === "/about") {
-            let canvas = document.getElementById("canvas");
-            // キャンバスで動いているwasmのclosureの関数を消す
-            module.stop_loop();
-        }
+        if (path === "/about") module.stop_loop();
     }).catch(console.error);
 }
 

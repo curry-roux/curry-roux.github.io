@@ -63,7 +63,7 @@ pub fn test1() -> Result<(), JsValue> {
         // let game = boid::Boid::new(width, height);
         let game = analog_clock::AnalogClock::new(width, height);
 
-        let game_loop = engine::GameLoop::start(game)
+        engine::GameLoop::start(game)
             .await
             .expect("Failed to start game");
     });
@@ -77,23 +77,3 @@ pub fn test2() -> Result<(), JsValue> {
     log!("test2 called!");
     Ok(())
 }
-
-// fn main() -> eframe::Result<()> {
-//     // ウィンドウの設定
-//     let options = eframe::NativeOptions {
-//         viewport: egui::viewport::ViewportBuilder::default()
-//             .with_inner_size([400.0, 300.0]),
-//         ..Default::default()
-//     };
-    
-//     // アプリケーションの実行
-//     eframe::run_native(
-//         "My egui App",
-//         options,
-//         Box::new(|cc| {
-//             // 日本語フォントの設定
-//             //setup_custom_fonts(&cc.egui_ctx);
-//             Ok(Box::new(egui_test::MyApp::default()))
-//         }),
-//     )
-// }
