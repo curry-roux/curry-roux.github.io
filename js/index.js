@@ -14,11 +14,48 @@ function navigate(path) {
 
 function render(path) {
     console.log(path);
+    document.body.classList.remove("body-locked");
+
     // wasmの関数を呼び出す
     import("../pkg/index.js").then(module => {
-        if (path === "/") module.test1();
-        if (path === "/about") module.stop_loop();
+        if (path === "/") {
+            reset();
+            document.body.classList.add("body-locked");
+            module.test1();
+        }
+        if (path === "/about") {
+            reset();
+            module.stop_loop();
+
+            const canvas = document.getElementById("canvas");
+            canvas.style.position = "absolute";
+
+            path = "test.md";
+            render_md(path);
+        }
     }).catch(console.error);
+}
+
+async function render_md(path) {
+    const res = await fetch(path);
+    const markdown = await res.text();
+    const html = marked.parse(markdown);
+
+    console.log(html);
+    
+    let content = document.getElementById("content");
+    try {
+        content.innerHTML = html;
+    } catch (e) {
+        console.error("Error rendering markdown:", e);
+        content.innerHTML = "<p>Error rendering markdown</p>";
+    }
+}
+
+function reset(){
+    let content = document.getElementById("content");
+    html = null;
+    content.innerHTML = html;
 }
 
 // Intercept link clicks
