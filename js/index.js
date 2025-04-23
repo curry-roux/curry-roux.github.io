@@ -1,5 +1,7 @@
 import("../pkg/index.js").catch(console.error);
 
+let spotlightEnabled = false;
+
 // SPAルーターの設定
 const routes = {
     "/": "home",
@@ -9,7 +11,7 @@ const routes = {
 
 function navigate(path) {
     window.history.pushState({ path }, "", path);
-    render(path);   
+    render(path);
 }
 
 function render(path) {
@@ -53,11 +55,13 @@ async function render_md(path) {
 }
 
 function reset(){
+    // contentを空にする
     let content = document.getElementById("content");
     html = null;
     content.innerHTML = html;
 }
 
+// spaルーターの初期化
 // Intercept link clicks
 document.addEventListener("click", (e) => {
     const target = e.target.closest("a");
@@ -76,3 +80,26 @@ document.addEventListener("click", (e) => {
 
     // Initialize on page load
     navigate(window.location.pathname);
+
+// spotlight effectテスト
+document.addEventListener("mousemove", (e) => {
+    if (!spotlightEnabled) return;
+    const spotlight = document.getElementById("spotlight");
+    if (!spotlight) return;
+    const x = e.clientX;
+    const y = e.clientY;
+    spotlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,1) 100%)`;
+});
+
+function toggleSpotlight() {
+    spotlightEnabled = !spotlightEnabled;
+
+    const spotlight = document.getElementById("spotlight");
+    if (!spotlight) return;
+  
+    if (spotlightEnabled) {
+      spotlight.style.display = "block";
+    } else {
+      spotlight.style.display = "none";
+    }
+}

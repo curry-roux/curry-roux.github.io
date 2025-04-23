@@ -10,20 +10,34 @@ body.body-locked {
     user-select: none;         /* 標準構文 */
 }
 
-/* 以下最上部のナビバー */
+/* 以下ヘッダー部分 */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem; /* お好みで調整してね */
+
+    background-color: rgba(16, 16, 16, 0.3);
+    transition: background-color 0.3s ease;
+}
+
+.header-container:hover {
+    background-color: rgba(16, 16, 16, 0.1);
+}
+
 .nav-bar {
     /* Change the font family as desired */
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
 
-    background-color: rgba(16, 16, 16, 0.3);
-    transition: background-color 0.3s ease;
+    /* background-color: rgba(16, 16, 16, 0.3);
+    transition: background-color 0.3s ease; */
 
     padding: 0.5rem 0;
 }
 
-.nav-bar:hover {
+/* .nav-bar:hover {
     background-color: rgba(16, 16, 16, 0.1);
-}
+} */
 
 .nav-bar a{
     display: inline-block;
@@ -49,32 +63,18 @@ body.body-locked {
     padding: 0 1rem;
 }
 
-.hamburger-menu {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: inherit;
-    position: absolute;
-    right: 1rem;
-    top: 0.5rem;
-}
-
-.parameter-panel {
-    display: none;
-    position: absolute;
-    top: 3rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-
-/* When panel is open */
-.parameter-panel.open {
-    display: block;
-}
+/* 以下エフェクトなど */
+#spotlight {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 100;
+    /* background: radial-gradient(circle 100px at 50% 50%, transparent 0%, rgba(0,0,0,1) 100%); */
+    transition: background-position 0.05s;
+  }
 
 
 /* 以下最下部のフッター部分 */
