@@ -11,13 +11,21 @@
   <body>
     <script src="index.js"></script>
     <header>
-      <nav class="nav-bar">
-        <ul>
-          <a href="/" data-route>TOP</a>
-          <a href="/about" data-route>TEST</a>
-          <a href="/test001">TEST001</a>
-        </ul>
-      </nav>
+      <div class="header-container">
+        <nav class="nav-bar">
+          <ul>
+            <a href="/" data-route>TOP</a>
+            <a href="/about" data-route>TEST</a>
+            <a href="/test001">TEST001</a>
+          </ul>
+        </nav>
+        <!-- ヘッダーの右上にはアイコンをいくつか並べる -->
+        <div class="header-icons">
+          <a href="https://github.com/curry-roux">
+            <img src="./icons/github.svg" alt="GitHub" width="30" height="30">
+          </a>
+        </div>
+      </div>
     </header>
 
     <div> 
@@ -25,6 +33,7 @@
     </div>
 
     <div id="content"></div>
+    <div id="spotlight"></div>
 
     <footer>
       <p>© 2025 ルゥ(Roux) </p>

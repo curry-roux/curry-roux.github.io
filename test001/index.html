@@ -1,33 +1,42 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ルゥのホームページ</title>
-    <link rel="stylesheet" href="style.css" media="screen">
-  </head>
-  <body>
-    <script></script>
-    <header>
-      <nav class="nav-bar">
-        <ul>
-          <a href="/" data-route>TOP</a>
-        </ul>
-      </nav>
-    </header>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>スポットライト効果</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
 
-    <div> 
-      <!-- 背景 -->
-      <canvas id="canvas" tabindex="0" width="50" height="50"></canvas>
-    </div>
+    #spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1000;
+      background: radial-gradient(circle 100px at 50% 50%, transparent 0%, rgba(0,0,0,1) 100%);
+      transition: background-position 0.05s;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; margin-top: 200px;">スポットライトの中にテキストが見える！</h1>
 
-    <div class="test">
-      <p>テストページ</p>
-    </div>
+  <div id="spotlight"></div>
 
-    <footer>
-      <p>© 2025 ルゥ(Roux) </p>
-    </footer>
-    
-  </body>
+  <script>
+    const spotlight = document.getElementById("spotlight");
+
+    document.addEventListener("mousemove", (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      spotlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,1) 100%)`;
+    });
+  </script>
+</body>
 </html>
