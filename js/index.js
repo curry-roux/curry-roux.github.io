@@ -2,6 +2,8 @@ import("../pkg/index.js").catch(console.error);
 
 let spotlightEnabled = false;
 
+Initialize();
+
 // SPAルーターの設定
 const routes = {
     "/": "home",
@@ -61,35 +63,6 @@ function reset(){
     content.innerHTML = html;
 }
 
-// spaルーターの初期化
-// Intercept link clicks
-document.addEventListener("click", (e) => {
-    const target = e.target.closest("a");
-    if (target && target.matches("[data-route]")) {
-        e.preventDefault();
-        navigate(target.getAttribute("href"));
-    }
-    });
-
-    // Handle browser navigation events (back/forward)
-    window.addEventListener("popstate", (e) => {
-        const path = e.state?.path || "/";
-        //navigate(window.location.pathname);
-        navigate(path);
-    });
-
-    // Initialize on page load
-    navigate(window.location.pathname);
-
-// spotlight effectテスト
-document.addEventListener("mousemove", (e) => {
-    if (!spotlightEnabled) return;
-    const spotlight = document.getElementById("spotlight");
-    if (!spotlight) return;
-    const x = e.clientX;
-    const y = e.clientY;
-    spotlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,1) 100%)`;
-});
 
 function toggleSpotlight() {
     spotlightEnabled = !spotlightEnabled;
@@ -102,4 +75,46 @@ function toggleSpotlight() {
     } else {
       spotlight.style.display = "none";
     }
+}
+
+function Initialize(){
+    // spaルーターの初期化
+    // Intercept link clicks
+    document.addEventListener("click", (e) => {
+        const target = e.target.closest("a");
+        if (target && target.matches("[data-route]")) {
+            e.preventDefault();
+            navigate(target.getAttribute("href"));
+        }
+        });
+
+        // Handle browser navigation events (back/forward)
+        window.addEventListener("popstate", (e) => {
+            const path = e.state?.path || "/";
+            //navigate(window.location.pathname);
+            navigate(path);
+        });
+
+        // Initialize on page load
+        navigate(window.location.pathname);
+
+    // spotlight effectテスト
+    document.addEventListener("mousemove", (e) => {
+        if (!spotlightEnabled) return;
+        const spotlight = document.getElementById("spotlight");
+        if (!spotlight) return;
+        const x = e.clientX;
+        const y = e.clientY;
+        spotlight.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(0,0,0,1) 100%)`;
+    });
+
+    // DOMの読み込み完了後の処理
+    document.addEventListener("DOMContentLoaded", () => {
+        // darkModeButtonのイベントリスナーをDOM読み込み後に設定する
+        const darkModeButton = document.getElementById("dark-mode-button");
+        darkModeButton.addEventListener("change", () => {
+            document.body.classList.toggle("dark-mode");
+            toggleSpotlight();
+        });
+    });
 }
