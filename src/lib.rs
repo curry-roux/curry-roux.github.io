@@ -77,3 +77,39 @@ pub fn test2() -> Result<(), JsValue> {
     log!("test2 called!");
     Ok(())
 }
+
+#[wasm_bindgen]
+pub fn boid() -> Result<(), JsValue> {
+    log!("boid called!");
+
+    browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+
+    let canvas = browser::canvas().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    let ctx = canvas
+        .get_context("2d")
+        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?
+        .ok_or_else(|| JsValue::from_str("Failed to get 2d context"))?;
+
+    // canvasの背景を黒に設定 後で消す
+    let ctx_2d = ctx
+        .dyn_into::<web_sys::CanvasRenderingContext2d>()
+        .map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    ctx_2d.set_fill_style(&JsValue::from_str("rgba(0, 0, 0, 0.2)"));
+    ctx_2d.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+
+    let width = canvas.width();
+    let height = canvas.height();
+
+    browser::spawn_local(async move{
+        let game = boid::Boid::new(width, height);
+
+        engine::GameLoop::start(game)
+            .await
+            .expect("Failed to start game");
+    });
+
+    Ok(())
+}
+
+
+// 以下テスト&デバッグ用

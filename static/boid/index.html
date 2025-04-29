@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ボイドモデル</title>
+    <link rel="stylesheet" href="style.css" media="screen">
+    <!-- 以下はcdn -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <script src="index.js"></script>
+    <header>
+      <div class="header-container">
+        <nav class="nav-bar">
+          <ul>
+            <a href="/" data-route>TOP</a>
+          </ul>
+        <div class="right-nav">
+          <label class="switch">
+            <input id="dark-mode-button" type="checkbox" checked="checked">
+            <span class="slider"></span>
+          </label>
+        </div>
+        </nav>
+      </div>
+    </header>
+
+    <div> 
+      <canvas id="canvas" tabindex="0" width="50" height="50"></canvas>
+    </div>
+
+    <div id="content"></div>
+    <div id="spotlight"></div>
+
+    <footer>
+      <p> © 2025 ルゥ(Roux) </p>
+    </footer>
+    
+  </body>
+</html>

@@ -37,6 +37,10 @@ function render(path) {
             path = "test.md";
             render_md(path);
         }
+        if (path === "/boid") {
+            reset();
+            module.boid();
+        }
     }).catch(console.error);
 }
 
