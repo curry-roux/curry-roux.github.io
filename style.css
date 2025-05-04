@@ -153,3 +153,29 @@ footer:hover {
     left: 0;
     z-index: -2;
 }
+
+/* parameterパネル */
+#parameter {
+    display: inline-flex;
+    flex-direction: column;
+    background: rgba(16, 16, 16, 0.3);
+    border-radius: 10px;
+    padding: 0.3rem;
+    margin: 0.5rem;
+
+    /* 選択できないようにする */
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10 and IE 11 */
+    user-select: none;         /* 標準構文 */
+}
+
+#parameter .param-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#parameter .param-group label {
+    display: inline-block;
+    width: 160px; /* お好みの幅に調整してね */
+}
