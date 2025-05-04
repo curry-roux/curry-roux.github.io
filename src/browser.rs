@@ -150,16 +150,45 @@ pub fn set_parameter_ui(name: &str) -> Result<()> {
     let document = document()?;
 
     let slider = document
-        .get_element_by_id(format!("param-{}", name).as_str())
+        .get_element_by_id(format!("param-slider-{}", name).as_str())
         .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
         .dyn_into::<HtmlInputElement>()
         .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
 
     let number_input = document
-        .get_element_by_id(format!("param-{}-input", name).as_str())
+        .get_element_by_id(format!("param-input-{}", name).as_str())
         .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
         .dyn_into::<HtmlInputElement>()
         .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
+
+    // スライダーのイベント処理
+    {
+        let slider_clone = slider.clone();
+        let number_clone = number_input.clone();
+        let slider_closure = Closure::wrap(Box::new(move |_event: web_sys::Event| {
+            let value = slider_clone.value();
+            number_clone.set_value(&value);
+        }) as Box<dyn FnMut(_)>);
+
+        slider.add_event_listener_with_callback("input", slider_closure.as_ref().unchecked_ref())
+            .map_err(|err| anyhow!("Failed to add event listener: {:#?}", err))?;
+        slider_closure.forget();
+    }
+
+    // 数値入力のイベント処理
+    {
+        let slider_clone = slider.clone();
+        let number_clone = number_input.clone();
+        let number_closure = Closure::wrap(Box::new(move |_event: web_sys::Event| {
+            let value = number_clone.value();
+            number_clone.set_value(&value);
+            slider_clone.set_value(&value);
+        }) as Box<dyn FnMut(_)>);
+
+        number_input.add_event_listener_with_callback("input", number_closure.as_ref().unchecked_ref())
+            .map_err(|err| anyhow!("Failed to add event listener: {:#?}", err))?;
+        number_closure.forget();
+    }
 
     Ok(())
 }

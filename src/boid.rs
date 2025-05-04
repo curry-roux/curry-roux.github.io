@@ -5,7 +5,7 @@ use rand::Rng;
 use async_trait::async_trait;
 
 use crate::engine::{
-    Game, Renderer2d, Point,
+    self, Game, Point, Renderer2d
 };
 
 // ボイドモデルシミュレータ
@@ -38,7 +38,25 @@ impl Boid {
 
     pub fn update_alignment_distance(&mut self, distance: f64) {
         self.parameters.alignment_distance = distance;
-    }// memo keystateの時のやつが参考になりそうね
+    }
+    pub fn update_cohesion_distance(&mut self, distance: f64) {
+        self.parameters.cohesion_distance = distance;
+    }
+    pub fn update_separate_distance(&mut self, distance: f64) {
+        self.parameters.separate_distance = distance;
+    }
+    pub fn update_alignment_force(&mut self, force: f64) {
+        self.parameters.alignment_force = force;
+    }
+    pub fn update_cohesion_force(&mut self, force: f64) {
+        self.parameters.cohesion_force = force;
+    }
+    pub fn update_separate_force(&mut self, force: f64) {
+        self.parameters.separate_force = force;
+    }
+    pub fn update_boid_count(&mut self, size: usize) {
+        self.parameters.boid_count = size;
+    }
 }
 
 // コンフィグ
@@ -198,6 +216,37 @@ impl Game for Boid {
             renderer.triangle(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y);
         }
         //log!("Boid draw");
+    }
+
+    fn update_parameter_from_html(&mut self){
+        let param_list: Vec<&str> = vec![
+            "boidcount",
+            "separateforce",
+            "alignforce",
+            "cohesionforce",
+            "separatedistance",
+            "aligndistance",
+            "cohesiondistance",
+        ];
+        for name in param_list {
+            let value = match engine::get_parameter_ui_value(name) {
+                Ok(val) => val,
+                Err(err) => {
+                    log!("Failed to get parameter value for {}: {:?}", name, err);
+                    continue;
+                }
+            };
+            match name {
+                "boidcount" => self.update_boid_count(value as usize),
+                "separateforce" => self.update_separate_force(value),
+                "alignforce" => self.update_alignment_force(value),
+                "cohesionforce" => self.update_cohesion_force(value),
+                "separatedistance" => self.update_separate_distance(value),
+                "aligndistance" => self.update_alignment_distance(value),
+                "cohesiondistance" => self.update_cohesion_distance(value),
+                _ => log!("Unknown parameter: {}", name),
+            }
+        }
     }
 }
 

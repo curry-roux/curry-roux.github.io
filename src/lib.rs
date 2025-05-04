@@ -84,6 +84,23 @@ pub fn test2() -> Result<(), JsValue> {
 pub fn boid() -> Result<(), JsValue> {
     log!("boid called!");
 
+    // パラメータのセットアップ
+    let param_check = browser::check_parameter_ui().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    if param_check {
+        let param_list: Vec<&str> = vec![
+            "boidcount",
+            "separateforce",
+            "alignforce",
+            "cohesionforce",
+            "separatedistance",
+            "aligndistance",
+            "cohesiondistance",
+        ];
+        for name in param_list {
+            let param = browser::set_parameter_ui(name).map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+        }
+    }
+
     browser::set_canvas_fullscreen().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
     let canvas = browser::canvas().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
@@ -115,53 +132,25 @@ pub fn boid() -> Result<(), JsValue> {
 
 
 // 以下テスト&デバッグ用
-use wasm_bindgen::JsCast;
-use web_sys::{window, HtmlElement, HtmlInputElement, Event};
-use std::rc::Rc;
-use std::cell::RefCell;
 
 //#[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
     log!("デバッグのrunが実行されました！！！");
-    let document = window().unwrap().document().unwrap();
-
-    // スライダーと数値入力を取得
-    let slider = document
-        .get_element_by_id("param-slider")
-        .unwrap()
-        .dyn_into::<HtmlInputElement>()?;
-    let number_input = document
-        .get_element_by_id("param-input")
-        .unwrap()
-        .dyn_into::<HtmlInputElement>()?;
-
-    // スライダーのイベント処理
-    {
-        let slider_clone = slider.clone();
-        let number_clone = number_input.clone();
-        let slider_closure = Closure::wrap(Box::new(move |_event: Event| {
-            let value = slider_clone.value();
-            number_clone.set_value(&value);
-            // ここでRust側のシミュレーションパラメータ更新関数呼び出しとかできるよ
-            log!("スライダーの値更新: {}", value);
-        }) as Box<dyn FnMut(_)>);
-        slider.add_event_listener_with_callback("input", slider_closure.as_ref().unchecked_ref())?;
-        slider_closure.forget();
-    }
-
-    // 数値入力のイベント処理
-    {
-        let slider_clone = slider.clone();
-        let number_clone = number_input.clone();
-        let number_closure = Closure::wrap(Box::new(move |_event: Event| {
-            let value = number_clone.value();
-            number_clone.set_value(&value);
-            slider_clone.set_value(&value);
-            // ここでRust側のシミュレーションパラメータ更新関数呼び出しとかできるよ
-            log!("数値入力の値更新: {}", value);
-        }) as Box<dyn FnMut(_)>);
-        number_input.add_event_listener_with_callback("input", number_closure.as_ref().unchecked_ref())?;
-        number_closure.forget();
+    // パラメータのセットアップ
+    let param_check = browser::check_parameter_ui().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    if param_check {
+        let param_list: Vec<&str> = vec![
+            "boidcount",
+            "separateforce",
+            "alignforce",
+            "cohesionforce",
+            "separatedistance",
+            "aligndistance",
+            "cohesiondistance",
+        ];
+        for name in param_list {
+            let param = browser::set_parameter_ui(name).map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+        }
     }
 
     Ok(())

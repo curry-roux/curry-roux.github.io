@@ -25,6 +25,7 @@ pub trait Game {
     async fn initialize(&self) -> Result<Box<dyn Game>>;
     fn update(&mut self);
     fn draw(&self, renderer: &Renderer2d);
+    fn update_parameter_from_html(&mut self) {}
 }
 
 const FRAME_SIZE: f32 = 1.0 / 60.0 * 1000.0; // 60fps
@@ -53,13 +54,6 @@ impl GameLoop {
         log!("parameter ui is exist: {}", param_check);
         let mut last_fps_update = 0.0;
 
-        let document = browser::document()?;
-        let slider = document
-            .get_element_by_id("param-slider")
-            .unwrap()
-            .dyn_into::<HtmlInputElement>()
-            .unwrap();
-
         let f: SharedLoopClosure = Rc::new(RefCell::new(None));
         let g = f.clone();
         *g.borrow_mut() = Some(browser::create_ref_closure(move |perf:f64|{
@@ -69,9 +63,6 @@ impl GameLoop {
                 return;
             }
             //process_input(&mut keystate, &mut keyevent_receiver);
-            let slider_value = slider.value();
-            let slider_value = slider_value.parse::<f64>().unwrap_or(0.0);
-            //log!("slider value: {}", slider_value);
             let frame_time = perf - game_loop.last_time;
             game_loop.accumulated_delta_time += frame_time as f32;
 
@@ -91,10 +82,10 @@ impl GameLoop {
                 if last_fps_update + 100.0 < perf {
                     draw_frame_rate(frame_time);
                     last_fps_update = perf;
+                    game.update_parameter_from_html();
                 }
             }
             
-            // let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
 
             if f.borrow().is_some() {
                 let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap()).unwrap();
@@ -191,6 +182,18 @@ fn draw_frame_rate(frame_time: f64) {
     browser::set_fps(fps).unwrap_or_else(|err| {
         log!("Failed to set fps: {:#?}", err);
     });
+}
+
+pub fn get_parameter_ui_value(name: &str) -> Result<f64> {
+    let document = browser::document()?;
+    let number_input = document
+        .get_element_by_id(format!("param-input-{}", name).as_str())
+        .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
+        .dyn_into::<HtmlInputElement>()
+        .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
+    let value = number_input.value();
+    let value: f64 = value.parse().map_err(|err| anyhow!("Failed to parse value: {:#?}", err))?;
+    Ok(value)
 }
 
 // parameter input

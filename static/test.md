@@ -27,5 +27,5 @@ $$ yama = \int tiri dt $$
 - ./analog_watch
     - シンプルなアナログ時計
 
-- ./boid
+- [./boid](http://localhost:8080/boid)
     - ボイドモデル
