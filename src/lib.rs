@@ -16,6 +16,8 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
+    run().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+
     Ok(())
 }
 
@@ -113,3 +115,54 @@ pub fn boid() -> Result<(), JsValue> {
 
 
 // 以下テスト&デバッグ用
+use wasm_bindgen::JsCast;
+use web_sys::{window, HtmlElement, HtmlInputElement, Event};
+use std::rc::Rc;
+use std::cell::RefCell;
+
+//#[wasm_bindgen]
+pub fn run() -> Result<(), JsValue> {
+    log!("デバッグのrunが実行されました！！！");
+    let document = window().unwrap().document().unwrap();
+
+    // スライダーと数値入力を取得
+    let slider = document
+        .get_element_by_id("param-slider")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()?;
+    let number_input = document
+        .get_element_by_id("param-input")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()?;
+
+    // スライダーのイベント処理
+    {
+        let slider_clone = slider.clone();
+        let number_clone = number_input.clone();
+        let slider_closure = Closure::wrap(Box::new(move |_event: Event| {
+            let value = slider_clone.value();
+            number_clone.set_value(&value);
+            // ここでRust側のシミュレーションパラメータ更新関数呼び出しとかできるよ
+            log!("スライダーの値更新: {}", value);
+        }) as Box<dyn FnMut(_)>);
+        slider.add_event_listener_with_callback("input", slider_closure.as_ref().unchecked_ref())?;
+        slider_closure.forget();
+    }
+
+    // 数値入力のイベント処理
+    {
+        let slider_clone = slider.clone();
+        let number_clone = number_input.clone();
+        let number_closure = Closure::wrap(Box::new(move |_event: Event| {
+            let value = number_clone.value();
+            number_clone.set_value(&value);
+            slider_clone.set_value(&value);
+            // ここでRust側のシミュレーションパラメータ更新関数呼び出しとかできるよ
+            log!("数値入力の値更新: {}", value);
+        }) as Box<dyn FnMut(_)>);
+        number_input.add_event_listener_with_callback("input", number_closure.as_ref().unchecked_ref())?;
+        number_closure.forget();
+    }
+
+    Ok(())
+}

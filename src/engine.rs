@@ -7,7 +7,7 @@ use std::{
 };
 
 use wasm_bindgen::{JsValue,};
-use web_sys::{CanvasRenderingContext2d,};
+use web_sys::{CanvasRenderingContext2d,HtmlInputElement};
 
 use crate::browser::{self, LoopClosure};
 
@@ -49,6 +49,17 @@ impl GameLoop {
             context: browser::context2d()?,
         };
 
+        let param_check = browser::check_parameter_ui()?;
+        log!("parameter ui is exist: {}", param_check);
+        let mut last_fps_update = 0.0;
+
+        let document = browser::document()?;
+        let slider = document
+            .get_element_by_id("param-slider")
+            .unwrap()
+            .dyn_into::<HtmlInputElement>()
+            .unwrap();
+
         let f: SharedLoopClosure = Rc::new(RefCell::new(None));
         let g = f.clone();
         *g.borrow_mut() = Some(browser::create_ref_closure(move |perf:f64|{
@@ -58,7 +69,9 @@ impl GameLoop {
                 return;
             }
             //process_input(&mut keystate, &mut keyevent_receiver);
-
+            let slider_value = slider.value();
+            let slider_value = slider_value.parse::<f64>().unwrap_or(0.0);
+            //log!("slider value: {}", slider_value);
             let frame_time = perf - game_loop.last_time;
             game_loop.accumulated_delta_time += frame_time as f32;
 
@@ -74,6 +87,12 @@ impl GameLoop {
             //         draw_frame_rate(&renderer, frame_time);
             //     }
             // }
+            if param_check {
+                if last_fps_update + 100.0 < perf {
+                    draw_frame_rate(frame_time);
+                    last_fps_update = perf;
+                }
+            }
             
             // let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap());
 
@@ -166,3 +185,14 @@ fn get_color(color: &str) -> String {
         _ => "rgba(10, 10, 10, 0.9)".to_string(), // default to black
     }
 }
+
+fn draw_frame_rate(frame_time: f64) {
+    let fps = 1000.0 / frame_time;
+    browser::set_fps(fps).unwrap_or_else(|err| {
+        log!("Failed to set fps: {:#?}", err);
+    });
+}
+
+// parameter input
+// html側でパラメータのスライドを変化させたり、値を入力したときにeventを受け取る
+// fn prepare_input() -> Result<UnboundedReciever<

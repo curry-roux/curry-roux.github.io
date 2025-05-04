@@ -35,6 +35,10 @@ impl Boid {
             parameters: parameter,
         }
     }
+
+    pub fn update_alignment_distance(&mut self, distance: f64) {
+        self.parameters.alignment_distance = distance;
+    }// memo keystateの時のやつが参考になりそうね
 }
 
 // コンフィグ

@@ -153,3 +153,19 @@ footer:hover {
     left: 0;
     z-index: -2;
 }
+
+/* parameterパネル */
+#parameter {
+    display: inline-flex;
+    flex-direction: column;
+    background: rgba(16, 16, 16, 0.3);
+    border-radius: 10px;
+    padding: 0.3rem;
+    margin: 0.5rem;
+}
+
+#parameter .param-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}

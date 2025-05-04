@@ -9,7 +9,7 @@ use wasm_bindgen::{
     closure::{WasmClosure,WasmClosureFnOnce,},
 };
 use web_sys::{
-    CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window,
+    CanvasRenderingContext2d, Document, HtmlCanvasElement, HtmlElement, Window, HtmlInputElement
 };
 
 macro_rules! log {
@@ -119,4 +119,47 @@ pub fn now() -> Result<f64>{
         .performance()
         .ok_or_else(|| anyhow!("Performance object not found"))?
         .now())
+}
+
+// パラメータUI回り
+pub fn check_parameter_ui() -> Result<bool> {
+    // パラメータuiが存在するかどうかを確認する
+    let document = document()?;
+    let exists = document
+        .get_element_by_id("parameter")
+        .is_some();
+
+    if exists {Ok(true)} else {Ok(false)}
+}
+
+pub fn set_fps(fps: f64) -> Result<()> {
+    let document = document()?;
+    let fps_element = document
+        .get_element_by_id("draw-fps")
+        .ok_or_else(|| anyhow!("No element found with id 'draw-fps'"))?
+        .dyn_into::<HtmlElement>()
+        .map_err(|err| anyhow!("Failed to convert element to HtmlElement: {:#?}", err))?;
+
+    fps_element.set_inner_text(&format!("FPS: {:.2}", fps));
+
+    Ok(())
+}
+
+pub fn set_parameter_ui(name: &str) -> Result<()> {
+    log!("init parameter ui slider: {}", name);
+    let document = document()?;
+
+    let slider = document
+        .get_element_by_id(format!("param-{}", name).as_str())
+        .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
+        .dyn_into::<HtmlInputElement>()
+        .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
+
+    let number_input = document
+        .get_element_by_id(format!("param-{}-input", name).as_str())
+        .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
+        .dyn_into::<HtmlInputElement>()
+        .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
+
+    Ok(())
 }

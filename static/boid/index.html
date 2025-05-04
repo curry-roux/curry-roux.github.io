@@ -30,6 +30,18 @@
       <canvas id="canvas" tabindex="0" width="50" height="50"></canvas>
     </div>
 
+    <div id="parameter">
+      <div class="param-group">
+        <label for="draw-fps-label">FPS: </label>
+        <span id="draw-fps">0</span>
+      </div>
+      <div class="param-group">
+        <label for="param-slider">Simulation Speed:</label>
+        <input type="range" id="param-slider" min="0" max="100" value="50">
+        <input type="number" id="param-input" min="0" max="100" value="50">
+      </div>
+    </div>
+
     <div id="content"></div>
     <div id="spotlight"></div>
 
