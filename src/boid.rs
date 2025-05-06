@@ -55,6 +55,33 @@ impl Boid {
         self.parameters.separate_force = force;
     }
     pub fn update_boid_count(&mut self, size: usize) {
+        if self.parameters.boid_count != size {
+            if self.parameters.boid_count < size {
+                for _ in 0..(size - self.parameters.boid_count) {
+                    let mut rng = rand::thread_rng();
+                    let agent = BoidAgent {
+                        position: Point {
+                            x: rng.gen_range(0.0..self.width as f64),
+                            y: rng.gen_range(0.0..self.height as f64),
+                        },
+                        velocity: Point {
+                            x: rng.gen_range(-1.0..1.0),
+                            y: rng.gen_range(-1.0..1.0),
+                        },
+                        acceleration: Point {
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                        size: self.parameters.boid_size,
+                    };
+                    self.agents.push(agent);
+                }
+            } else {
+                for _ in 0..(self.parameters.boid_count - size) {
+                    self.agents.pop();
+                }
+            }
+        }
         self.parameters.boid_count = size;
     }
 }

@@ -27,7 +27,7 @@ function render(path) {
             document.body.classList.add("body-locked");
             module.test1();
         }
-        if (path === "/about") {
+        if (path === "/about" || path === "/about/") {
             reset();
             module.stop_loop();
 
@@ -37,7 +37,7 @@ function render(path) {
             path = "test.md";
             render_md(path);
         }
-        if (path === "/boid") {
+        if (path === "/boid" || path === "/boid/") {
             reset();
             module.boid();
         }
@@ -102,7 +102,7 @@ function Initialize(){
         // Initialize on page load
         navigate(window.location.pathname);
 
-    // spotlight effectテスト
+    // spotlight effect
     document.addEventListener("mousemove", (e) => {
         if (!spotlightEnabled) return;
         const spotlight = document.getElementById("spotlight");

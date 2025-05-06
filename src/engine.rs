@@ -66,9 +66,16 @@ impl GameLoop {
             let frame_time = perf - game_loop.last_time;
             game_loop.accumulated_delta_time += frame_time as f32;
 
+            let mut count = 0;
             while game_loop.accumulated_delta_time >= FRAME_SIZE{
                 game.update();
                 game_loop.accumulated_delta_time -= FRAME_SIZE;
+                count += 1;
+                if count > 3 {
+                    log!("Game Loop: Too many updates, skipping some frames.");
+                    game_loop.accumulated_delta_time = 0.0;
+                    break;
+                }
             }
             game_loop.last_time = perf;
             game.draw(&renderer);
@@ -86,7 +93,6 @@ impl GameLoop {
                 }
             }
             
-
             if f.borrow().is_some() {
                 let _ = browser::request_animation_frame(f.borrow().as_ref().unwrap()).unwrap();
             } else {

@@ -16,7 +16,7 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-    run().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
+    //run().map_err(|err| JsValue::from_str(&format!("{:#?}", err)))?;
 
     Ok(())
 }
