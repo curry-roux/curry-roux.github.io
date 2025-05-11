@@ -192,12 +192,18 @@ fn draw_frame_rate(frame_time: f64) {
 
 pub fn get_parameter_ui_value(name: &str) -> Result<f64> {
     let document = browser::document()?;
-    let number_input = document
-        .get_element_by_id(format!("param-input-{}", name).as_str())
+    // let number_input = document
+    //     .get_element_by_id(format!("param-input-{}", name).as_str())
+    //     .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
+    //     .dyn_into::<HtmlInputElement>()
+    //     .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
+    let slider = document
+        .get_element_by_id(format!("param-slider-{}", name).as_str())
         .ok_or_else(|| anyhow!("No element found with id 'param-{}'", name))?
         .dyn_into::<HtmlInputElement>()
         .map_err(|err| anyhow!("Failed to convert element to HtmlInputElement: {:#?}", err))?;
-    let value = number_input.value();
+    let value = slider.value();
+    //let value = number_input.value();
     let value: f64 = value.parse().map_err(|err| anyhow!("Failed to parse value: {:#?}", err))?;
     Ok(value)
 }

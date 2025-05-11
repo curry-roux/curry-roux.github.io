@@ -7,6 +7,7 @@ mod browser;
 mod engine;
 mod boid;
 mod analog_clock;
+mod hashlife;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
