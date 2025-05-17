@@ -9,6 +9,8 @@ mod boid;
 mod analog_clock;
 mod hashlife;
 
+use crate::boid::boid::Boid;
+
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
 pub fn main_js() -> Result<(), JsValue> {
@@ -82,7 +84,7 @@ pub fn test2() -> Result<(), JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn boid() -> Result<(), JsValue> {
+pub fn boid_start() -> Result<(), JsValue> {
     log!("boid called!");
 
     // パラメータのセットアップ
@@ -121,7 +123,7 @@ pub fn boid() -> Result<(), JsValue> {
     let height = canvas.height();
 
     browser::spawn_local(async move{
-        let game = boid::Boid::new(width, height);
+        let game = Boid::new(width, height);
 
         engine::GameLoop::start(game)
             .await

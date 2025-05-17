@@ -39,7 +39,7 @@ function render(path) {
         }
         if (path === "/boid" || path === "/boid/") {
             reset();
-            module.boid();
+            module.boid_start();
         }
     }).catch(console.error);
 }
